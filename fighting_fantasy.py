@@ -2,15 +2,16 @@ import random
 
 
 def roll():
-    return random.randint(1,6)
+    return random.randint(1, 6)
 
 
 class Character:
-    def __init__(self,is_dead: bool = False,score:int = 0,roll:int = 0,stamina:int = 10,skill:int = 0,name: str = 'player'):
+    def __init__(self, is_dead: bool = False, score: int = 0, roll: int = 0,
+                 stamina: int = 10, skill: int = 0, name: str = 'player'):
         self._is_dead = is_dead
+        self._stamina = stamina
         self.score = score
         self.roll = roll
-        self._stamina = stamina
         self.skill = skill
         self.name = name
 
@@ -20,6 +21,7 @@ class Character:
     def __str__(self):
         return f"{self.name.capitalize()}"
 
+    # ---- Property handling stamina & is_dead logic ----
     @property
     def stamina(self):
         return self._stamina
@@ -27,6 +29,8 @@ class Character:
     @stamina.setter
     def stamina(self, value):
         self._stamina = max(0, value)
+        if self._stamina == 0:
+            self._is_dead = True
 
     @property
     def is_dead(self):
@@ -41,19 +45,19 @@ class Character:
             if self._stamina == 0:
                 self._stamina = 1
 
+    # ---- Core logic ----
     def find_score(self):
-        self.roll = random.randint(1,12)
+        self.roll = random.randint(1, 12)
         self.score = self.roll + self.skill
 
-    def wound(self,amount: int = 0):
+    def wound(self, amount: int = 0):
         self.stamina -= amount
-        if self.stamina <= 0:
-            self.is_dead = True
         return self.stamina
 
     def fight_round(self, dragon):
         self.find_score()
         dragon.find_score()
+
         if self.score > dragon.score:
             dragon.wound(2)
             result = 'won'
@@ -67,14 +71,14 @@ class Character:
     def return_character_status(self):
         return f"{self.name.capitalize()} has skill {self.skill} and stamina {self.stamina}"
 
-    def return_roll_status(self,a:int = 1,b:int = 6):
-        self.roll = random.randint(a,b)
+    def return_roll_status(self, a: int = 1, b: int = 6):
+        self.roll = random.randint(a, b)
         total = self.roll + self.skill
         return f"{self.name.capitalize()} rolled {self.roll} for a total score of {total}"
 
 
 class PlayerCharacter(Character):
-    def __init__(self, name:str, skill:int, stamina:int, luck:int):
+    def __init__(self, name: str, skill: int, stamina: int, luck: int):
         super().__init__(name=name, skill=skill, stamina=stamina)
         self.luck = luck
 
@@ -90,20 +94,20 @@ class PlayerCharacter(Character):
 
 
 class Game:
-    def __init__(self,game_over:bool = False,round_result: bool = False,opponent: str = '',player:str = ''):
+    def __init__(self, game_over: bool = False, round_result: bool = False,
+                 opponent: str = '', player: str = ''):
         self.game_over = game_over
         self.round_result = round_result
         self.opponent = opponent
         self.player = player
 
     def choose_opponent(self):
-        enemies = [
-            Character(name='Goblin', skill=4, stamina=6),
-            Character(name='Orc', skill=6, stamina=8),
+        opponents = [
             Character(name='Skeleton', skill=5, stamina=6),
-            Character(name='Troll', skill=7, stamina=10)
+            Character(name='Goblin', skill=4, stamina=5),
+            Character(name='Orc', skill=6, stamina=8)
         ]
-        self.opponent = random.choice(enemies)
+        self.opponent = random.choice(opponents)
 
     def set_player(self, pc):
         self.player = pc
@@ -129,12 +133,13 @@ class Game:
                 f"{self.opponent.name} has skill {self.opponent.skill} and stamina {self.opponent.stamina}")
 
     def return_round_result(self):
-        player_line = f"{self.player.name} rolled {self.player.roll} for a total score of {self.player.score}\n"
-        opp_line = f"{self.opponent.name} rolled {self.opponent.roll} for a total score of {self.opponent.score}\n"
+        msg = (f"{self.player.name} rolled {self.player.roll} for a total score of {self.player.score}\n"
+               f"{self.opponent.name} rolled {self.opponent.roll} for a total score of {self.opponent.score}\n")
+
         if self.round_result == "won":
-            res = "Player won this round"
+            msg += "Player won this round\n"
         elif self.round_result == "lost":
-            res = "Player lost this round"
+            msg += "Player lost this round\n"
         else:
-            res = "This round was a draw"
-        return player_line + opp_line + res + "\n"
+            msg += "This round was a draw\n"
+        return msg
