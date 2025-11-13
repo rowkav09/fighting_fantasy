@@ -95,11 +95,12 @@ class PlayerCharacter(Character):
 
 class Game:
     def __init__(self, game_over: bool = False, round_result: bool = False,
-                 opponent: str = '', player: str = ''):
+                 opponent: 'Character' = None, player: 'PlayerCharacter' = None):
         self.game_over = game_over
         self.round_result = round_result
         self.opponent = opponent
         self.player = player
+
 
     def choose_opponent(self):
         opponents = [
