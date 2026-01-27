@@ -164,6 +164,17 @@ def get_choice(prompt, valid_choices):
         print(f"Invalid choice. Please enter '{valid_str}'.")
 
 
+def print_banner(title):
+    """Print a formatted banner with title.
+    
+    Args:
+        title: The title text to display in the banner
+    """
+    print("\n" + "=" * 60)
+    print(title)
+    print("=" * 60)
+
+
 def main():
     """Main game loop for Fighting Fantasy."""
     print("=" * 60)
@@ -175,6 +186,7 @@ def main():
     player_name = input("Enter your character's name: ").strip()
     if not player_name:
         player_name = "Hero"
+        print("Using default name: Hero")
     
     # Generate player character
     player = PlayerCharacter.generate_player_character(player_name)
@@ -188,11 +200,9 @@ def main():
     
     # Main game loop
     while True:
-        print("\n" + "=" * 60)
-        print("A new opponent appears!")
-        print("=" * 60)
+        print_banner("A new opponent appears!")
         
-        # Create new game with opponent
+        # Create new game with opponent (reset game state for each battle)
         game = Game()
         game.choose_opponent()
         game.set_player(player)
@@ -229,15 +239,11 @@ def main():
         
         # Check outcome
         if fled:
-            print("\n" + "=" * 60)
-            print("GAME OVER")
-            print("=" * 60)
+            print_banner("GAME OVER")
             print(f"\nYou fought in {battles_fought} battle(s) and won {battles_won}.")
             break
         elif player.is_dead:
-            print("\n" + "=" * 60)
-            print("YOU HAVE DIED!")
-            print("=" * 60)
+            print_banner("YOU HAVE DIED!")
             print(f"\nYou fought bravely in {battles_fought} battle(s) and won {battles_won}.")
             print("Your adventure has come to an end.")
             break
@@ -249,9 +255,7 @@ def main():
             # Ask if player wants to continue
             continue_game = get_choice("\nDo you want to continue your adventure? (y/n): ", ['y', 'n'])
             if continue_game == 'n':
-                print("\n" + "=" * 60)
-                print("CONGRATULATIONS!")
-                print("=" * 60)
+                print_banner("CONGRATULATIONS!")
                 print(f"\nYou survived {battles_fought} battle(s) and won {battles_won}!")
                 print(f"Final stats - Skill: {player.skill}, Stamina: {player.stamina}, Luck: {player.luck}")
                 print("\nYou retire from adventuring as a legend!")
