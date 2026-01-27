@@ -146,6 +146,24 @@ class Game:
         return msg
 
 
+def get_choice(prompt, valid_choices):
+    """Helper function to get validated user input.
+    
+    Args:
+        prompt: The prompt to display to the user
+        valid_choices: List of valid single-character choices
+    
+    Returns:
+        The validated choice
+    """
+    while True:
+        choice = input(prompt).strip().lower()
+        if choice in valid_choices:
+            return choice
+        valid_str = "' or '".join(valid_choices)
+        print(f"Invalid choice. Please enter '{valid_str}'.")
+
+
 def main():
     """Main game loop for Fighting Fantasy."""
     print("=" * 60)
@@ -190,11 +208,7 @@ def main():
             print(f"\n--- Round {round_num} ---")
             
             # Ask player if they want to fight or flee
-            while True:
-                choice = input("Do you want to (f)ight or (r)un away? ").strip().lower()
-                if choice in ['f', 'r']:
-                    break
-                print("Invalid choice. Please enter 'f' to fight or 'r' to run away.")
+            choice = get_choice("Do you want to (f)ight or (r)un away? ", ['f', 'r'])
             
             if choice == 'r':
                 print(f"\nYou flee from the {game.opponent.name}!")
@@ -233,8 +247,8 @@ def main():
             print(f"\nBattles fought: {battles_fought}, Battles won: {battles_won}")
             
             # Ask if player wants to continue
-            continue_game = input("\nDo you want to continue your adventure? (y/n): ").strip().lower()
-            if continue_game != 'y':
+            continue_game = get_choice("\nDo you want to continue your adventure? (y/n): ", ['y', 'n'])
+            if continue_game == 'n':
                 print("\n" + "=" * 60)
                 print("CONGRATULATIONS!")
                 print("=" * 60)
