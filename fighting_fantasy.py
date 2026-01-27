@@ -185,16 +185,21 @@ def main():
         
         # Combat loop
         round_num = 1
+        fled = False
         while not game.game_over:
             print(f"\n--- Round {round_num} ---")
             
             # Ask player if they want to fight or flee
-            choice = input("Do you want to (f)ight or (r)un away? ").strip().lower()
+            while True:
+                choice = input("Do you want to (f)ight or (r)un away? ").strip().lower()
+                if choice in ['f', 'r']:
+                    break
+                print("Invalid choice. Please enter 'f' to fight or 'r' to run away.")
             
             if choice == 'r':
                 print(f"\nYou flee from the {game.opponent.name}!")
                 print("Your adventure ends here...")
-                game.game_over = True
+                fled = True
                 break
             
             # Resolve combat round
@@ -204,10 +209,18 @@ def main():
             
             round_num += 1
         
-        battles_fought += 1
+        # Only count as a battle if player didn't flee
+        if not fled:
+            battles_fought += 1
         
         # Check outcome
-        if player.is_dead:
+        if fled:
+            print("\n" + "=" * 60)
+            print("GAME OVER")
+            print("=" * 60)
+            print(f"\nYou fought in {battles_fought} battle(s) and won {battles_won}.")
+            break
+        elif player.is_dead:
             print("\n" + "=" * 60)
             print("YOU HAVE DIED!")
             print("=" * 60)
@@ -229,13 +242,6 @@ def main():
                 print(f"Final stats - Skill: {player.skill}, Stamina: {player.stamina}, Luck: {player.luck}")
                 print("\nYou retire from adventuring as a legend!")
                 break
-        else:
-            # Player fled
-            print("\n" + "=" * 60)
-            print("GAME OVER")
-            print("=" * 60)
-            print(f"\nYou fought in {battles_fought} battle(s) and won {battles_won}.")
-            break
     
     print("\nThank you for playing Fighting Fantasy!")
 
