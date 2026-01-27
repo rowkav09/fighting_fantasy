@@ -144,3 +144,101 @@ class Game:
         else:
             msg += "This round was a draw\n"
         return msg
+
+
+def main():
+    """Main game loop for Fighting Fantasy."""
+    print("=" * 60)
+    print("Welcome to Fighting Fantasy!")
+    print("=" * 60)
+    print()
+    
+    # Get player name
+    player_name = input("Enter your character's name: ").strip()
+    if not player_name:
+        player_name = "Hero"
+    
+    # Generate player character
+    player = PlayerCharacter.generate_player_character(player_name)
+    print(f"\n{player}")
+    print(f"Skill: {player.skill}, Stamina: {player.stamina}, Luck: {player.luck}")
+    print()
+    
+    # Game statistics
+    battles_won = 0
+    battles_fought = 0
+    
+    # Main game loop
+    while True:
+        print("\n" + "=" * 60)
+        print("A new opponent appears!")
+        print("=" * 60)
+        
+        # Create new game with opponent
+        game = Game()
+        game.choose_opponent()
+        game.set_player(player)
+        
+        print(f"\nYou encounter a {game.opponent.name}!")
+        print(f"{game.opponent.name} - Skill: {game.opponent.skill}, Stamina: {game.opponent.stamina}")
+        print()
+        
+        # Combat loop
+        round_num = 1
+        while not game.game_over:
+            print(f"\n--- Round {round_num} ---")
+            
+            # Ask player if they want to fight or flee
+            choice = input("Do you want to (f)ight or (r)un away? ").strip().lower()
+            
+            if choice == 'r':
+                print(f"\nYou flee from the {game.opponent.name}!")
+                print("Your adventure ends here...")
+                game.game_over = True
+                break
+            
+            # Resolve combat round
+            game.resolve_fight_round()
+            print(game.return_round_result())
+            print(game.return_characters_status())
+            
+            round_num += 1
+        
+        battles_fought += 1
+        
+        # Check outcome
+        if player.is_dead:
+            print("\n" + "=" * 60)
+            print("YOU HAVE DIED!")
+            print("=" * 60)
+            print(f"\nYou fought bravely in {battles_fought} battle(s) and won {battles_won}.")
+            print("Your adventure has come to an end.")
+            break
+        elif game.opponent.is_dead:
+            battles_won += 1
+            print(f"\nVictory! You have defeated the {game.opponent.name}!")
+            print(f"\nBattles fought: {battles_fought}, Battles won: {battles_won}")
+            
+            # Ask if player wants to continue
+            continue_game = input("\nDo you want to continue your adventure? (y/n): ").strip().lower()
+            if continue_game != 'y':
+                print("\n" + "=" * 60)
+                print("CONGRATULATIONS!")
+                print("=" * 60)
+                print(f"\nYou survived {battles_fought} battle(s) and won {battles_won}!")
+                print(f"Final stats - Skill: {player.skill}, Stamina: {player.stamina}, Luck: {player.luck}")
+                print("\nYou retire from adventuring as a legend!")
+                break
+        else:
+            # Player fled
+            print("\n" + "=" * 60)
+            print("GAME OVER")
+            print("=" * 60)
+            print(f"\nYou fought in {battles_fought} battle(s) and won {battles_won}.")
+            break
+    
+    print("\nThank you for playing Fighting Fantasy!")
+
+
+if __name__ == "__main__":
+    main()
