@@ -144,3 +144,125 @@ class Game:
         else:
             msg += "This round was a draw\n"
         return msg
+
+
+def get_choice(prompt, valid_choices):
+    """Helper function to get validated user input.
+    
+    Args:
+        prompt: The prompt to display to the user
+        valid_choices: List of valid single-character choices
+    
+    Returns:
+        The validated choice
+    """
+    while True:
+        choice = input(prompt).strip().lower()
+        if choice in valid_choices:
+            return choice
+        valid_str = "' or '".join(valid_choices)
+        print(f"Invalid choice. Please enter '{valid_str}'.")
+
+
+def print_banner(title):
+    """Print a formatted banner with title.
+    
+    Args:
+        title: The title text to display in the banner
+    """
+    print("\n" + "=" * 60)
+    print(title)
+    print("=" * 60)
+
+
+def main():
+    """Main game loop for Fighting Fantasy."""
+    print("=" * 60)
+    print("Welcome to Fighting Fantasy!")
+    print("=" * 60)
+    print()
+    
+    # Get player name
+    player_name = input("Enter your character's name: ").strip()
+    if not player_name:
+        player_name = "Hero"
+        print("Using default name: Hero")
+    
+    # Generate player character
+    player = PlayerCharacter.generate_player_character(player_name)
+    print(f"\n{player}")
+    print(f"Skill: {player.skill}, Stamina: {player.stamina}, Luck: {player.luck}")
+    print()
+    
+    # Game statistics
+    battles_won = 0
+    battles_fought = 0
+    
+    # Main game loop
+    while True:
+        print_banner("A new opponent appears!")
+        
+        # Create new game with opponent (reset game state for each battle)
+        game = Game()
+        game.choose_opponent()
+        game.set_player(player)
+        
+        print(f"\nYou encounter a {game.opponent.name}!")
+        print(f"{game.opponent.name} - Skill: {game.opponent.skill}, Stamina: {game.opponent.stamina}")
+        print()
+        
+        # Combat loop
+        round_num = 1
+        fled = False
+        while not game.game_over:
+            print(f"\n--- Round {round_num} ---")
+            
+            # Ask player if they want to fight or flee
+            choice = get_choice("Do you want to (f)ight or (r)un away? ", ['f', 'r'])
+            
+            if choice == 'r':
+                print(f"\nYou flee from the {game.opponent.name}!")
+                print("Your adventure ends here...")
+                fled = True
+                break
+            
+            # Resolve combat round
+            game.resolve_fight_round()
+            print(game.return_round_result())
+            print(game.return_characters_status())
+            
+            round_num += 1
+        
+        # Only count as a battle if player didn't flee
+        if not fled:
+            battles_fought += 1
+        
+        # Check outcome
+        if fled:
+            print_banner("GAME OVER")
+            print(f"\nYou fought in {battles_fought} battle(s) and won {battles_won}.")
+            break
+        elif player.is_dead:
+            print_banner("YOU HAVE DIED!")
+            print(f"\nYou fought bravely in {battles_fought} battle(s) and won {battles_won}.")
+            print("Your adventure has come to an end.")
+            break
+        elif game.opponent.is_dead:
+            battles_won += 1
+            print(f"\nVictory! You have defeated the {game.opponent.name}!")
+            print(f"\nBattles fought: {battles_fought}, Battles won: {battles_won}")
+            
+            # Ask if player wants to continue
+            continue_game = get_choice("\nDo you want to continue your adventure? (y/n): ", ['y', 'n'])
+            if continue_game == 'n':
+                print_banner("CONGRATULATIONS!")
+                print(f"\nYou survived {battles_fought} battle(s) and won {battles_won}!")
+                print(f"Final stats - Skill: {player.skill}, Stamina: {player.stamina}, Luck: {player.luck}")
+                print("\nYou retire from adventuring as a legend!")
+                break
+    
+    print("\nThank you for playing Fighting Fantasy!")
+
+
+if __name__ == "__main__":
+    main()
